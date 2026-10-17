@@ -1,0 +1,780 @@
+%=====================================================
+%
+% Variables (same scheme as the sample document)
+%
+%=====================================================
+
+\def\doctype{article}
+
+\def\emptypages{false}
+\def\showparts{false}
+
+\def\ttitlepage{titlepage.tex}
+\def\ttitlepagetitletop{Quantisation, Serving and Harness Repair}
+\def\ttitlepagesubtitletop{What It Takes to Run a Local Coder Beside Real Work}
+\def\ttitlepagetitlemiddle{Lab Report}
+\def\ttitlepagesubtitlemiddle{Paired measurements of 16--17 October 2026 (third night)}
+
+\def\torganization{Independent Research}
+\def\tsubmissiondate{17 October 2026}
+\def\tversion{0.1 (draft)}
+\def\tauthor{Matthias Nott}
+\def\tcontact{~}
+\def\tcontactid{~}
+
+\def\tfooterleftlabelup{Title}
+\def\tfooterleftlabeldown{Author}
+\def\tfooterleftup{Local Coding Agents, Night 3}
+\def\tfooterleftdown{Matthias Nott}
+\def\tfootermiddleup{Quantisation, Harness Repair}
+\def\tfootermiddledown{Lab Report}
+\def\tfooterrightlabelup{Date}
+\def\tfooterrightlabeldown{Version}
+\def\tfooterrightup{October 2026}
+\def\tfooterrightdown{0.1}
+
+\def\showtitlepage{true}
+\def\showlistofs{true}
+\def\showtoc{true}
+\def\showlot{true}
+\def\showlof{false}
+\def\showloe{false}
+\def\showlod{false}
+
+\def\showreferences{true}
+\def\showappendix{false}
+\def\showendnotes{false}
+\def\showanyglossary{false}
+\def\showacronyms{false}
+\def\showglossary{false}
+\def\showstatic{false}
+\def\showindex{false}
+
+\def\showpageheaders{true}
+\def\showpagefooters{true}
+\def\showwordcount{false}
+\def\showwordcountback{false}
+
+\input{templates/cfg/zz_layout}
+
+\setcounter{tocdepth}{2}
+
+\usepackage[
+  style=apa
+, citestyle=authoryear
+, backend=biber
+, maxnames=3
+, minnames=1
+, sorting=nyt
+, sortcites=true
+, block=space
+, safeinputenc
+, natbib=true
+, backref=true
+, uniquename=init]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{Bibliography.bib}
+\input{templates/cfg/zz_config_bib}
+
+\usepackage{indentfirst}
+
+\newcommand{\cmd}[1]{\texttt{#1}}
+
+% Alternate row colours in every table (xcolor is loaded with the table option by the layout)
+% Breathing room between tables and the running text
+\setlength{\intextsep}{16pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{18pt plus 2pt minus 4pt}
+\setlength{\floatsep}{16pt plus 2pt minus 2pt}
+
+\definecolor{rowtint}{gray}{0.93}
+\AtBeginEnvironment{table}{\global\csname @rowcolorstrue\endcsname\rowcolors{2}{rowtint}{white}}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setcounter{secnumdepth}{2}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\begin{document}
+
+%=====================================================
+% Title page and abstract
+%=====================================================
+
+\input{tex/\ttitlepage}
+
+\begin{center}
+\begin{minipage}{0.86\textwidth}
+\section*{Abstract}
+
+The second night left a local worker that could finish small fixes once the serving stack was repaired and the
+prompt named the file; it left open what else separates a local model from a cloud worker. This third night
+narrows the question with eight candidates that ran fresh arms (two more were rejected before grading), paired
+precise and plan prompts on the same replay tasks, and one self-directed queue that ran to the morning. Four
+findings stand out. First, quantisation decides, and the lift replicates across model families: Ornith-35B-A3B at
+8~bit instead of 4~bit turned per-task instability into two concentrated losses (5 of 8 graded arms against 7 of
+17, Wilson 31--86\,\%) and produced the first local double pass on box-press; on a second family the same lift
+went from 4 of 6 to 5 of 6 on the identical three-task protocol, at half the resident size (17--18\,GB against
+35.5). Second, the remaining failure classes are model-side, and one is harness-repairable: dotted tool names
+(\cmd{Glob.glob}, \cmd{Read.read}, \cmd{Bash.Bash}) caused all 27 of the night's dotted-name errors, every one in
+arms spawned before the repair hook was registered at 19:39 --- a 38-minute registration gap that the failing
+arms straddled; invented absolute paths caused 130 path-guard events (97 repaired, 33 denied; 17 distinct
+invented roots). Third, speed without instruction-following is worthless: a dense 30B model with the fastest
+streams of the night (25--29 tokens/s single stream) passed 0 of 5 graded arms. Fourth, a 125B MoE paged from
+SSD is usable (3 of 6, swap flat) but every decode token pays random expert-row page-ins --- 3.0 tokens/s
+against 9.8 resident --- and an 80B 8-bit model on the same host never went resident (10.7\,GB rss) and never hit
+the prefix cache (0 hits in 102 fetches). The save-model-ref class remains uncrossed (0 of 14 graded local
+tries), and its replication attempt wedged the serving process twice (Metal 46.2\,GB active against a 34.6\,GB
+limit, resident collapsed to 0.1\,GB). The recommendation: Ornith-35B-A3B 8-bit stays the resident coder on
+build-verified evidence; the 30B-A3B 8-bit is the likely default at half the footprint pending build
+verification; multi-file saves stay on the cloud coder.
+
+\end{minipage}
+\end{center}
+
+
+\clearpage
+
+%=====================================================
+% Table of contents and list of tables
+%=====================================================
+
+\sequals{\showpageheaders}{true}{
+	\pagestyle{fancy}
+	\fancyhead{}
+	\fancyhead[RO,LE]{\thepage}
+	\fancyhead[LO]{\slshape CONTENTS}
+	\fancyhead[RE]{\slshape CONTENTS}
+}{}
+\sequals{\showpagefooters}{true}{\fancyfoot[C]{}}{}
+\pdfbookmark[-1]{\contentsname}{toc}
+\tableofcontents
+\listoftables
+\clearpage
+
+\sequals{\showpageheaders}{true}{
+	\pagestyle{fancy}
+	\fancyhead{}
+	\fancyhead[LE,RO]{\thepage}
+	\fancyhead[RE]{\slshape \rightmark}
+	\fancyhead[LO]{\slshape \rightmark}
+}{}
+\sequals{\showpagefooters}{true}{\fancyfoot[C]{\pfooter}}{}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection.\ #1}{\thesection.\ #1}}
+\renewcommand{\subsectionmark}[1]{}
+
+%=====================================================
+% Body
+%=====================================================
+
+\section{Introduction}\label{sec:intro}
+
+Night 1 asked whether open-weight models on one workstation can act as agentic coding workers and answered no for
+real fixes \citep{Anthropic-2026aa}. Night 2 asked the same question with paired arms and found that the answer
+was being suppressed twice: the serving stack never hit its prefix cache, and the worker mistyped paths until a
+repair hook was added; with both fixed, a local model finished one-function fixes within about twice the time of
+the cloud reference. The question of this third night is narrower still: \emph{with serving and path repair
+solved, what else separates a local coder from a cloud coder?} Four candidate answers were put to the test, one
+per finding:
+
+\begin{itemize}
+	\item \textbf{Quantisation.} The MoE candidate of night~2 ran at 4~bit and was unstable per task. The same
+	model at 8~bit (Ornith-1.5-35B-A3B, ``ornith8'') is tonight's first hypothesis: the bit width, not the model,
+	decides whether the per-task results hold together. When the queue extended in the morning, the same question
+	was asked a second time on a different family (Qwen3-Coder-30B-A3B, 4~bit on night~1 against 8~bit tonight).
+	\item \textbf{Model-side failure classes.} The failures that remain after the serving and path fixes --- dotted
+	tool names, invented absolute paths, loops --- should now be attributable to the models, and the dotted-name
+	class should be repairable in the harness, measured live.
+	\item \textbf{Instruction-following, not speed.} A new dense 30B candidate (Muse-Glimmer, 4~bit) with the
+	fastest streams of the night tests whether speed alone moves any task.
+	\item \textbf{The uncrossed class.} The multi-file, reference-preserving save-model-ref task should remain
+	beyond every local candidate, as it was on night~2, and stay with the cloud coder.
+\end{itemize}
+
+After the first two candidates and the serving fault of Section~\ref{sec:wedge}, the night turned into a
+self-directed queue that ran to 07:20 and served four more candidates, two of them experiments in where a model
+is allowed to live: a 125B MoE deliberately larger than free memory, paged from SSD, and an 80B 8-bit model that
+the operating system keeps out of residence entirely. Section~\ref{sec:changes} describes what changed since
+night~2, Section~\ref{sec:setting} the setting, Section~\ref{sec:method} the method, Section~\ref{sec:results}
+the results, Section~\ref{sec:harness} the harness findings, and Section~\ref{sec:related} the relation to
+published work.
+
+\section{What Changed Since Night 2}\label{sec:changes}
+
+\begin{description}
+	\item[The 8-bit arm.] The quantisation A/B of Section~\ref{sec:quant}: the same model family and launcher as
+	night~2, at 8~bit instead of 4~bit. The 4-bit model failed its smoke test on night~2 (an assertion error on the
+	one-line bug); the 8-bit model passed it.
+	\item[Tool-name repair, measured live.] Local models hallucinate namespaced tool names --- \cmd{Glob.glob},
+	\cmd{Read.read}, \cmd{Bash.Bash} --- and every such call dies with ``no such tool available'' as a tool-result
+	error that no hook saw, so the run thrashes on the same mistake (the same unavailable name sixteen times in one
+	arm tonight). A worker-only PreToolUse hook now rewrites a dotted name whose last segment names a known tool,
+	case-insensitively, to the bare name and keeps the input; each repair is logged. The rule and the hook were
+	committed at 19:01 and the hook was registered live at 19:39; the gap and its lesson are Section~\ref{sec:gap}.
+	\item[Finisher discipline.] Night~3 lost arms to phase budgets, not to models: the first ornith8 phase was cut
+	by the phase worker's deadline at 18:29 (four arms void, marked not-started), and a second worker deadline at
+	19:13 orphaned two glimmer arms mid-run. The rule adopted afterwards: when a phase is cut, the missing
+	task--prompt cells are re-run as one completion phase per candidate, paired arms started together, one server
+	loaded at a time (glimmer's server stopped 20:02, ornith8 loaded 20:03, stopped 21:33), and the void rows stay
+	in the table as history instead of being quietly dropped.
+	\item[An ATEM tool parser for Glimmer.] The Muse-Glimmer template carries its own tool-call template
+	(\cmd{atem:function\_calls}); no shipped parser of the serving stack, including \cmd{auto}, reads it. A local
+	parser was written into the patched launcher and probe-verified against all 38 choices on a sample before the
+	server was started. The template raises on string tool arguments, but the serving layer's template-safety
+	normalisation already converts them, and no HTTP~500 occurred all night.
+	\item[The queue.] After the wedge, the operator extended the night: a worker ran the candidate queue
+	self-directed until morning --- the box-press debt run owed by qwen38, gpt-oss-20b, the SSD-paged 125B
+	(Section~\ref{sec:ssd}), a 6-bit Ornith completion, and the two 8-bit builds of Section~\ref{sec:ranking}.
+	Every candidate was smoke-tested (one-line bug through the full tool loop) before any task arm; four of the
+	six new servers passed the smoke in 19--68\,s.
+\end{description}
+
+\section{Setting}\label{sec:setting}
+
+All measurements ran on the same Apple MacBook Pro with an M5 Max and 128\,GB of unified memory as nights~1 and~2,
+set to maximum performance, with the load average logged per arm. Local models were served with vllm-mlx
+\citep{vllm-mlx-2026aa} through patched launchers (thinking off where the template supports it, output capped at
+8192), one model server at a time. Workers were started through PAI \citep{Nott-2026aa}. The workloads are
+anonymised as in the earlier reports: Project~A is the native PDF application that supplies the coding tasks.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Models of the third night (night-2 candidates carry their rows into Table~\ref{tab:ranking}; the cloud
+yardsticks of night~2 are cited there, not re-run).}\label{tab:models3}
+\begin{tabular}{P{4.4cm}P{3.2cm}P{1.8cm}P{4.8cm}}
+\toprule
+Model & Placement & Quant & Role \\
+\midrule
+Ornith-1.5-35B-A3B & local, MoE (3B active) & 8-bit & Quant A/B arm, resident pick (``ornith8''; 35\,G on disk) \\
+Muse-Glimmer-30B & local, dense & 4-bit & Candidate, rejected (``glimmer''; vision section present, text path forced) \\
+Qwen3-Coder-30B-A3B \citep{Qwen-Team-2025aa} & local, MoE (8 active) & 8-bit & Queue candidate (``local30x8''; 32\,G on disk) \\
+Qwen3.8-Flash-Next & local, MoE (125B trunk), SSD-paged & 3.3\,bpw mixed & SSD-overrun experiment (``ddalcu''; 80\,G on disk) \\
+Qwen3-Coder-Next 80B & local, MoE (512E/10 active), mmap & 8-bit & Queue candidate (``codernext''; 80\,G, never resident) \\
+gpt-oss-20b & local, MoE (36 experts) & MXFP4-Q8 & Rejected at smoke (``gpt20b''; 11\,G on disk) \\
+Ornith-1.5-35B-A3B & local, MoE & 6-bit & Queue completion (``ornith6'') \\
+Qwen3.8-27B & local, dense & 6-bit & Night-2 candidate; box-press debt run \\
+GLM-4.7-Flash \citep{Zhipu-AI-2026aa} & local & 6-bit & Night-2 candidate, carries its ranking row \\
+Claude Sonnet 5.5 \citep{Anthropic-2026ab} & cloud & -- & Yardstick (night-2 numbers, cited) \\
+GLM-5.3-flash & cloud & -- & Yardstick (night-2 numbers, cited) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+One constraint is carried over from the reboot of night~2 and tightened. A \emph{36\,GB watch line} bounds the
+resident size of the one allowed server, measured as resident memory of the serving process, not requested:
+ornith8 was measured at 35.0\,GB at smoke start and 35.29\,GB at the cut-off of its first phase, and peaked at
+35.5\,GB during the completion phase --- half a gigabyte under the line, with the Metal allocation limit set to
+34.6\,GB (30\,\% of 115.4\,GB). Glimmer, dense at 4~bit, sat far below it (15.5--16.0\,GB resident, Metal peak
+17.3\,GB), and local30x8 lower still (17.2--18.1\,GB), which is itself data for the resident-coder question: the
+30B class is the only one that leaves the machine headroom. What the watch line does not prevent is
+Section~\ref{sec:wedge}: Metal activity can exceed the allocation limit from outside the cache, and that is where
+the night's serving fault lives.
+
+\section{Method}\label{sec:method}
+
+\subsection{Tasks, prompts, grading}
+
+The four replay tasks of nights~1 and~2 are reused unchanged: fixes that already landed in Project~A, started from
+the parent commit in an isolated clone, graded by the hidden tests that came with the fix. Deadlines are 20
+minutes for view-decimals, 15 for log-size, 25 for box-press and 40 for save-model-ref (30 minutes on the
+SSD-paged arms, where every arm was expected to run to its cap); wall time is censored at the deadline and the
+build and test exit codes are recorded. Each task runs as a pair of arms started together, the \emph{precise}
+prompt (file and function named) against the \emph{plan} prompt (a cloud-written edit plan, ``cloud head, local
+hands''). A patch passes when the result builds and the hidden tests pass; no model judges another. Wilson
+intervals \citep{Wilson-1927aa} are given for pass rates.
+
+\subsection{Two grading modes, and when each counts}\label{sec:grading}
+
+The night used both graders, and the ranking states which row rests on which. Through the ornith6 completion
+(23:37) every verdict is a \emph{build verdict}: the hidden tests ran, and pass means the tests went green ---
+these are the same verdicts as nights~1 and~2. In the later queue rounds the builder was dropped (the operator
+banned the heavy build as a watch-line risk), and arms were graded by diff comparison against the landed fix:
+\emph{check} when the arm touched the fix's own file and function, \emph{likely-fail} otherwise. Checks were then
+inspected by hand; every pass quoted for local30x8, ddalcu and codernext is an inspected diff that contains the
+true fix (for log-size, the exact one-line root cause), and Section~\ref{sec:limits} carries the cost of this
+substitution. Build verdicts and inspected checks are never mixed inside one fraction without a note.
+
+\subsection{Replication rule}
+
+Night~2's rule ``no single-run verdicts'' is enforced as a replication pass: every cell of the shortlisted
+candidate is run a second time (rep~2) before the ranking is called final. Tonight the replication pass is
+incomplete by a serving fault, not by choice: view-decimals replicated (the split repeated exactly), the
+save-model-ref pair wedged the server twice (Section~\ref{sec:wedge}) and was abandoned, and log-size and
+box-press were not re-run --- both had passed 2 of 2 in rep~1. The ranking therefore stands on rep-1 evidence
+with one replicated task, and the sample sizes are stated wherever a fraction is quoted.
+
+\subsection{Voids}
+
+An arm that never reached the model or was killed by the harness before grading is \emph{void}, never a fail.
+Tonight's voids have three causes: phase-budget kills (six arms), a loop-guard kill on a degenerate arm
+(Section~\ref{sec:taxonomy}), and the wedged server (two arms).
+
+\section{Results}\label{sec:results}
+
+\subsection{Ranking}\label{sec:ranking}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Final night-3 ranking (the morning update, rep-1 evidence). ``Result'' is graded arms on the three-task
+set view-decimals/log-size/box-press; ornith8 additionally holds save-model-ref 0 of 2. Rows marked
+\emph{build} are build-verified verdicts (Section~\ref{sec:grading}); \emph{check} rows are inspected diff-level
+passes. Cloud yardsticks from night~2 for orientation: Sonnet~5.5 passed 4 of 4 (median 5.6\,min), GLM-5.3 and
+GLM-5.3-flash 3 of 4 each, Haiku~4.5 2 of 4.}\label{tab:ranking}
+\resizebox{\textwidth}{!}{\begin{tabular}{clllll}
+\toprule
+Rank & Candidate & Result & Resident & Decode & Note \\
+\midrule
+1 & Ornith-1.5-35B-A3B 8-bit (ornith8) & \textbf{5/6} (box 2/2, log 2/2, view 1/2) + save-model-ref 0/2 & 35.5/36\,GB & 9.8--10.3 bulk, 22.8\,s/turn & \emph{build}; first local box-press double pass \\
+2 & Qwen3-Coder-30B-A3B 8-bit (local30x8) & \textbf{5/6} (view 2/2, log 2/2, box 1/2) & 17--18\,GB & 8.4 bulk, 62 max single & \emph{check}, inspected; quant lift, second family \\
+3 & Qwen3.8-Flash-Next 3.3\,bpw (ddalcu) & 3/6 (log 2/2, box 1/2 precise, view 0/2) & ${\sim}$52\,G of 128\,G wired & 3.0 bulk & \emph{check}; SSD-paged, Section~\ref{sec:ssd} \\
+4 & Qwen3-Coder-Next 80B 8-bit (codernext) & 2/6 (log 2/2; view, box read-only) & 10.7\,GB rss (80\,G never resident) & 2.5 bulk, 8.0 max & \emph{check}; prefix cache never hits \\
+5 & GLM-4.7-Flash 6-bit (night 2) & 5/7 (log 3/3, box 1/2, view 1/2); save-model-ref unfinished & ${\sim}$24\,GB & -- & night-2 rows carried \\
+6 & Ornith-1.5-35B-A3B 6-bit (ornith6) & 3/6 (box 2/2, log 1/2, view 0/2) & -- & -- & \emph{build}; ranks between ornith8 and qwen38 \\
+7 & Qwen3.8-27B 6-bit (qwen38) & 3/8 (log 2/2, view 1/2, save-model-ref 0/2, box 0/2) & ${\sim}$20\,GB & -- & box-press debt run tonight \\
+8 & Ornith-1.5-35B-A3B 4-bit (night 2) & 7/17 (log 4/4, view 2/5, box 1/4, save-model-ref 0/4) & 26\,G disk & -- & superseded by its 8-bit \\
+-- & Muse-Glimmer-30B 4-bit (glimmer) & 0/5 graded (+3 void) & 17.3\,GB & 14.9 (25.2 max) & rejected: instruction-following \\
+-- & gpt-oss-20b MXFP4-Q8 (gpt20b) & smoke fail $\times$3 & -- & -- & rejected: no tool loop (Section~\ref{sec:serving3}) \\
+-- & Muse-Spark GGUF / qwen4\_exp via llama.cpp & never served & -- & -- & llama-server 0.7.0 supports neither architecture \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Ornith8 keeps rank~1 on evidence strength: it is the only candidate whose passes are build-verified, the only one
+that passes real tasks on both prompt styles, and the only one that passes box-press at all until local30x8's
+inspected check (night~2's local models passed it three times in total, each on one arm of a pair). Its Wilson
+interval on the night's graded arms, 5 of 8, is 31--86\,\% --- the honest reading is ``clearly above glimmer, not
+separable from glm47 on this $n$''. On footprint and arm speed the runner-up dominates it: local30x8 passes the
+same five of six cells at 17--18\,GB (half the resident size) with arms of 5--6.5 minutes against ornith8's
+12--25, and its one failure (box-press plan) is the same cell its own night-1 4-bit build failed. Ranks 3 and 4
+are the memory experiments of Section~\ref{sec:ssd}. Qwen3.8 stays the light fallback at roughly 20\,GB; its owed
+box-press run happened tonight and failed both arms with real effort (23 and 34 turns, no files touched), so its
+record is now complete at 3 of 8. Glimmer is rejected (Section~\ref{sec:glimmer}), and the 4-bit ornith arm is
+superseded by its 8-bit self.
+
+\subsection{The quantisation A/B}\label{sec:quant}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{The same MoE model at 4 bit (night 2) and 8 bit (night 3). Pass fractions are graded arms per task;
+n is 4--17 for the 4-bit rows and 2 per cell for the 8-bit rows.}\label{tab:quant}
+\begin{tabular}{P{3.4cm}P{4.4cm}P{5.6cm}}
+\toprule
+& Ornith 4-bit (night 2) & Ornith 8-bit (night 3) \\
+\midrule
+Smoke (one-line bug, driver-verified test) & fail --- assertion error & pass --- bug fixed, test exit 0, 36\,s wall \\
+log-size & 4/4 & 2/2 \\
+view-decimals & 2/5 & 1/2 (precise timed out; plan passed) \\
+box-press & 1/4 & \textbf{2/2} --- first local double pass \\
+save-model-ref & 0/4 & 0/2 \\
+Graded total (Wilson 95\,\%) & 7/17 (22--64\,\%) & 5/8 (31--86\,\%) \\
+Failure shape & per-task instability: every task fails in at least one arm & two concentrated losses: the view-decimals precise timeout and save-model-ref \\
+Weights on disk / resident & 26\,G / (night-2 serving) & 35\,G / 35.5\,GB peak \\
+Bulk decode & 52.8\,tok/s single request, 0.8--1.5\,s/turn after the cache fix & 10.3\,tok/s bulk (4229 tokens in 411.6\,s); 22.8\,s/turn on the passed plan arm \\
+Prefix cache & fixed launcher, clean & clean: 158 hit / 7 miss (phase), 312 hit / 6 miss (completion) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 8-bit arm answers the hypothesis in its favour with one caveat. What changed is not the average pass rate ---
+7 of 17 and 5 of 8 are the same result at different sample sizes --- but the shape: the 4-bit arm failed every
+task in at least one arm, while the 8-bit arm fails only in two places, one of which (view-decimals precise) is a
+timeout at 22.8\,s per turn rather than a wrong change. The caveat is speed: 8 bit halves nothing about the MoE's
+active parameters, but the measured bulk decode fell to 10.3\,tok/s and the passed plan arm of view-decimals ran
+at 13.7 minutes and 36 turns (22.8\,s per turn), so the resident model spends wall time the operator feels.
+Night~2's reading that ``collapse below 30B-A3B'' is about speed times quality, not size alone, is unchanged.
+
+\textbf{The lift replicates on a second family.} The queue's last candidate is the same experiment on
+Qwen3-Coder-30B-A3B, which ran night~1 as a 4-bit LM Studio build (``local30'', 4 of 6 on the three paired
+tasks). At mlx-community 8 bit, same protocol, the same three-task set goes to 5 of 6 (view-decimals 2/2,
+log-size 2/2, box-press 1/2): the same 30B-A3B MoE, 128 experts, uniform 8-bit group-64, at 17.2--18.1\,GB
+resident. Every pass is an inspected diff-level check, and each contains the true fix: view-decimals precise
+committed a two-file fix in the fix's own file and function (plain-decimal camera formatting) plus a test after
+about five minutes, early-stopped; both log-size arms found and committed the exact root cause (the cached
+file-size key read instead of the real bytes of the file); box-press precise is the fix's one-liner (the pick
+test that must exclude 3D annotations) plus a forty-line test, uncommitted at the cap. The two weak cells are
+honest: view-decimals plan sprawled over a 22-file uncommitted diff at the cap, and box-press plan touched
+nothing. One lift is a finding about one model; two lifts on two families, on the same paired protocol, is a
+finding about quantisation --- and the second family delivers the passes at half the memory and two to four
+times the arm speed, which is why it is the recommended default candidate
+(Section~\ref{sec:recommendation}).
+
+\subsection{Per-task splits}\label{sec:splits}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ornith8 by task, prompt and repetition (minutes, turns where recorded; 20/15/25/40\,min deadlines;
+lines are changed lines in the fix files against the landed fix).}\label{tab:splits}
+\resizebox{\textwidth}{!}{\begin{tabular}{lllll}
+\toprule
+Task & Rep & Precise & Plan & Lines (arm/fix) \\
+\midrule
+view-decimals & 1 & fail 20.0 (cap, build failed) & \textbf{pass} 13.7 / 36 turns & 24 and 12 vs 9 \\
+view-decimals & 2 & fail 17.8 (built, test failed) & \textbf{pass} 20.0 & 11 and 12 vs 9 \\
+save-model-ref & 1 & fail 40.0 (cap, built, test failed) & fail 40.0 (cap, built, test failed) & 0 of 3 files, 0/65 \\
+save-model-ref & 2 & void --- server wedge & void --- server wedge & -- \\
+log-size & 1 & \textbf{pass} 12.0 / 26 turns (7042 tok) & \textbf{pass} 15.0 & 2/3 and 8/3 \\
+box-press & 1 & \textbf{pass} 25.0 (cap) & \textbf{pass} 25.0 (cap) & 6/5 and 40/5 (3 extra files) \\
+\bottomrule
+\end{tabular}}
+
+\smallskip\footnotesize
+The box-press plan arm made the change three times too broad (40 lines against 5, three extra files) but the
+viewer it was to open works; the hidden tests pass. The phase rows of 17:49--18:29 are the first pass; the
+completion phase (20:03--21:33) re-ran the cells the deadline kill had orphaned; rep~2 started 21:39.
+\end{table}
+
+Two regularities carry over from night~2. The plan prompt again wins view-decimals for ornith8 (2 of 2 graded
+arms, against 0 of 2 precise, across two repetitions --- the night-2 pattern of five local plan passes on that
+task with no precise pass now has six data points), and save-model-ref again admits no local pass: built, tested,
+wrong behaviour in both arms, 102 and 144 turns respectively, no diff in the three fix files. What is new is
+box-press: both arms pass, one of them (precise, 6 lines) tightly. The pattern has one exception at 6~bit:
+ornith6 failed view-decimals on \emph{both} arms --- the first local plan-prompt failure on that task --- while
+passing box-press twice, so the plan-prompt regularity is not quant-independent.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{The queue candidates by task (precise / plan; deadlines 12--30\,min as stated in
+Section~\ref{sec:grading}; ``check'' = inspected diff-level pass, ``l-fail'' = likely-fail).}\label{tab:splits2}
+\resizebox{\textwidth}{!}{\begin{tabular}{lllll}
+\toprule
+Candidate (cap) & view-decimals & log-size & box-press & Night total \\
+\midrule
+local30x8 (12/15/15) & \textbf{pass} (check): committed 2-file fix, ${\sim}$5\,min early-stop / sprawl: 22-file uncommitted diff at cap & \textbf{pass} (check) $\times$2: exact root cause, both committed (plan arm also committed scratch files) & \textbf{pass} (check): the 1-line pick fix + 40-line test, uncommitted at cap / l-fail, 0 files & \textbf{5/6} \\
+ddalcu, SSD-paged (30) & fail: 45 turns, 0 files / fail: 36 turns, test file only & \textbf{pass} (check) $\times$2: the rotating-log fix, committed / from the tree & \textbf{pass} (check): the pick fix's core, 4 lines vs 5 / fail: 36 turns, 0 files & \textbf{3/6} \\
+codernext (12/25/25) & fail: 34 turns, 0 files / fail: 31 turns, 0 files & \textbf{pass} (check) $\times$2: the exact 1-line fix, uncommitted, self-reported fail (no build in cap) & fail: 0 files / fail: wrong file only & \textbf{2/6} \\
+qwen38, box-press debt (25) & -- & -- & l-fail: 23 turns, 0 files / l-fail: 34 turns, 0 files & 0/2 \\
+ornith6 (20/15/25, \emph{build}) & fail 0.2 / fail 13.4, 79 turns & fail 0.4, 1 turn / \textbf{pass} 15.0 & \textbf{pass} 25.0, 8/5 / \textbf{pass} 25.0, 66/5 (3 extra files) & \textbf{3/6} \\
+\bottomrule
+\end{tabular}}
+
+\smallskip\footnotesize
+Ornith6's view-decimals and log-size precise arms are degenerate one-turn runs (0.2 and 0.4 minutes; the
+log-size arm emitted 189 tokens and stopped) --- the night-2 ``empty first turn'' class resurfacing at 6~bit.
+The codernext log-size arms produced the true fix but the worker judged itself failed because it could not run
+the build; the diff was graded instead.
+\end{table}
+
+\subsection{Glimmer: fast, useless}\label{sec:glimmer}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Muse-Glimmer-30B 4-bit by task (dense 30B; all arms on its own server, :8016).}\label{tab:glimmer}
+\begin{tabular}{lll}
+\toprule
+Task & Precise & Plan \\
+\midrule
+view-decimals & fail 20.1 (cap, 0 files changed) & fail 20.0 (cap, 0 files changed) \\
+save-model-ref & void (deadline kill, 62 turns deep) & void (deadline kill) \\
+log-size & fail 15.0 (29 tool calls, all read-only) & fail 2.4 / 1 turn (answered the protocol, not the task) \\
+box-press & fail 25.0 (cap, ${\sim}$120 turns, 0 edits) & void (loop guard, 2.3\,min) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Glimmer is the night's control on the speed hypothesis, and it fails cleanly. The serving stack was not the
+problem: first token in 0.7--1.2\,s, 25--29\,tok/s single stream (83--141 tokens per turn in 2.9--4.9\,s), prefix
+cache 194 hit / 7 miss in the phase and 124 hit / 4 miss in the completion run. The worker explored correctly and
+never landed: roughly 69 turns per arm on view-decimals with no edit, 29 read-only tool calls on log-size, about
+120 turns on box-press with zero edits, against ornith8's 36-turn pass on the same task class. Three distinct
+model-level failure modes appear in its five graded fails: \emph{read-only paralysis} (explores to the cap and
+never edits), \emph{protocol confusion} (a one-turn run that answered the worker protocol's handoff message
+instead of the task, 1492 tokens, no tool call), and the \emph{tool-name loop} of
+Section~\ref{sec:taxonomy}. The verdict of the ranking --- a fast talker and a slow coder --- doubles as a
+positive result: a dense 30B at 4~bit is fast enough on this machine (2.5--3$\times$ ornith8's single-stream
+decode), so density and quantisation are no longer reasons to reject a candidate; instruction-following in the
+agent loop is the gate.
+
+\subsection{The SSD-overrun experiment}\label{sec:ssd}
+
+The queue's most interesting question was not ``which model'' but ``where may a model live''. Two candidates
+deliberately violate the resident-size assumption. The first, ``ddalcu'', is a 125B qwen4\_exp MoE (125B trunk,
+51B n-gram table, 4B MTP head) packed at 3.3 effective bits-per-weight --- below the ${\sim}$3.5-bit threshold at
+which on-device evaluations start to bend \citep{Song-2025aa} --- 80\,G on disk against free RAM; its n-gram table
+is mmapped from an external store and never resident, so the server \emph{must} page weights from SSD during
+decode. Three load blockers were found and fixed in sequence before it served at all: an MTP head stored under an
+unexpected key (stripped; served without MTP speculation); a mixed 2/3/4/8-bit pack whose config declares only a
+global 4~bit (a generated quantisation map of 774 per-tensor entries, proven by a strict lazy load of all 3167
+tensors); and folded RMSNorm weights that turn $(1+w)\cdot x$ into $(2+w)\cdot x$ under the serving stack's
+formula (monkeypatched to the plain form; the arithmetic sanity check ``$17\times23$'' then answered ``391'').
+After that: smoke pass through the full tool loop in 68\,s, zero template errors, 3 of 6 graded arms with
+log-size on both prompts and the box-press precise fix's core --- the second-best quality-per-task-attempted of
+the night.
+
+The cost is the finding. Over 202 streamed turns, decode averaged 3.0\,tok/s (median 3.3, min 0.7, max 14.2);
+the machine survived with swap growing 25\,MB in total against a kill line of 500\,MB per five minutes, and the
+server peaked at 32.7\,GB rss (${\sim}$51--57\,G of 128\,G including Metal). But the paging tax is paid on
+\emph{every} token, not only cold turns: the first big prefill ran as interleaved SSD reads (1{,}307 slow-step
+warnings), and warm turns with a fully cached prefix still decoded at 3--4\,tok/s because MoE decode pages
+random expert rows. Every arm ran its full 30-minute cap; at 3\,tok/s that is about 60 turns --- enough for
+log-size and box-press, never enough for view-decimals to converge. Speed, not capability, is the SSD-overrun
+bottleneck: the same arms that ornith8 finishes at 9.8\,tok/s take a $3\times$ wall-clock tax here.
+
+The second experiment, ``codernext'', is the 80B hybrid-attention MoE at 8~bit (512 experts, 10 active) on the
+same host --- and the operating system solved residency its own way: the server process sat at 10.0--10.8\,GB rss
+the whole run, the 80\,G of weights were never resident, and macOS paged expert rows from the file cache on
+demand. The load was harmless (26--28\,\% free, swap fell 20.0 to 19.1\,G, the guard never fired; loading
+displaced ${\sim}$19\,G of other sessions' memory into swap first), the smoke passed in 59\,s --- and the model
+managed only 2 of 6, all four view-decimals and box-press arms read-only to the cap at 2.5\,tok/s (about 2
+turns per minute), while its two log-size arms again contain the exact one-line fix. It also produced the
+night's cleanest cache result: \textbf{zero prefix-cache hits in 102 fetches} over 205 requests (against 166
+hits in 2 misses for the qwen3\_moe family the same night on the same launcher), so every turn re-prefills the
+whole prompt. Hybrid linear-attention architectures appear to have no working prefix-cache path in this serving
+stack; until they have, an 80G resident-free coder pays full prefill on every turn, and the ``pages little at
+mixed quantisation'' hope is falsified at pure 8~bit.
+
+\subsection{Failure taxonomy}\label{sec:taxonomy}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Failure classes of the night with counts from the tool-error and path-repair logs (experiment arms
+only; 136 error rows in the night's window, a further 175 coming from an out-of-round infrastructure session on
+the same machine).}\label{tab:taxonomy}
+\begin{tabular}{P{3.6cm}P{2.4cm}P{7.4cm}}
+\toprule
+Class & Count & Where and what \\
+\midrule
+Dotted tool names & 27 rows, 2 arms & All glimmer, all in arms spawned before 19:39: view-decimals pair 10 (\cmd{Glob.glob} 3, \cmd{Read.read} 4, \cmd{Bash.Bash} 3); box-press plan 17 (\cmd{Glob.glob} 16, \cmd{Bash.Bash} 1), killed by the loop guard after 2.3\,min. The ten arms spawned after registration produced none. \\
+Invented absolute paths & 130 guard events & 97 repaired (the suffix of the invented path existed under the clone), 33 denied. 17 distinct invented roots; most common \cmd{/Users/vv} (23), \cmd{/Users/cheric} (13), \cmd{/Users/ab} and \cmd{/home/ubuntu} (8 each), the \cmd{/Users/ele*} family (16), \cmd{/workspace/src} (6), \cmd{/Users/slyvar} (6). By task: save-model-ref 26, box-press 40, view-decimals 23, log-size 8. By model: ornith6 36, ornith8 34, glimmer 26. \\
+Server wedge & 2 events & Both on the ornith8 rep2 server during save-model-ref (Section~\ref{sec:wedge}). \\
+Read-only paralysis & 8 arms & Glimmer: view-decimals $\times$2, log-size precise, box-press precise. codernext: view-decimals $\times$2, box-press precise (the whole cap at ${\sim}$2 turns/min). ddalcu: view-decimals precise. Right files, no edit landed --- the cap, not the search, is the limit at 2.5--15\,tok/s. \\
+Protocol confusion & 1 arm & Glimmer log-size plan: 1 turn, answered the worker protocol's handoff message, 1492 tokens. (Two further one-turn ornith6 arms, Table~\ref{tab:splits2}, look like the same class but were not inspected.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The taxonomy is deliberately split by owner. The dotted-name class is mechanical and was repaired mid-night
+(Section~\ref{sec:harness}); the invented-root class is model-side but already contained by night~2's path hook,
+which repaired 97 and denied 33 invented paths and kept every arm inside its clone --- the repairs are themselves
+evidence of what the models believe a path looks like (a home directory named after someone else, a
+\cmd{/workspace} root, a bare \cmd{/Sources} where the clone's tree should begin); the wedge is serving-side and
+new. Glimmer's behavioural classes have no lever yet, and the class generalises: read-only paralysis recurs in
+every candidate below about 3\,tok/s, where the deadline fills with reading before the edit can come --- at
+SSD-paged speeds the failure mode is a property of the wall clock as much as of the model.
+
+\subsection{The serving wedge}\label{sec:wedge}
+
+At about 22:11, one third into the save-model-ref rep2 pair, the ornith8 server stopped inferring: Metal reported
+46.2\,GB active with 50.8\,GB peak against the 34.6\,GB allocation limit and an empty (0.0\,GB) cache, the serving
+process's resident memory collapsed to 0.1\,GB, and the disconnect guard spun --- one client connection was held
+open past 700\,s, a second past 115\,s --- with two requests running and none completing. Both arms were killed
+by the arm guard and marked void. The wedge had occurred once before on the same server, identically, which makes
+it systematic in the night's sense: long-context arms (save-model-ref has the largest prompt of the four tasks)
+trip a vllm-mlx memory path that deadlocks after roughly 35--45 minutes under continuous batching. It is the
+third consecutive night whose most expensive finding is a serving fault invisible in any pass/fail table:
+night~1's serial prefill, night~2's silent cache defeats, tonight's deadlock. The scheduler's own Metal log line
+(active 46.2\,GB) is the diagnostic to watch on future long-context phases; a per-phase Metal-peak watch line is
+the cheap lever, and the replication rule absorbed the damage --- the ranking stands on rep~1, and the wedge is
+the finding. The queue adopted the consequence directly: no later candidate was run on save-model-ref (cloud
+class, wedge risk).
+
+\subsection{Serving findings}\label{sec:serving3}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Server-side figures per phase (prefix-cache hit/miss from the server log; stream average and maximum
+decode tokens/s).}\label{tab:serving3}
+\begin{tabular}{llccl}
+\toprule
+Phase (server) & Requests & Cache hit/miss & tok/s avg (max) & Resident \\
+\midrule
+ornith8, phase 1 (:8015) & -- & 158 / 7 & 10.3 bulk & 35.0 $\rightarrow$ 35.3\,GB \\
+ornith8, completion (:8015) & 313 & 312 / 6 & 9.8 (15.8) & 35.0 $\rightarrow$ 35.5\,GB \\
+glimmer, phase 1 (:8016) & 201 fetches & 194 / 7 & 11.8 batched; 25--29 single & 15.6 $\rightarrow$ 16.0\,GB \\
+glimmer, completion (:8016) & 124 & 124 / 4 & 14.9 (25.2) & 15.5 $\rightarrow$ 15.7\,GB \\
+ornith6 (:8013) & -- & -- & -- & -- \\
+local30x8 (:8034) & 2 arms batched & 166 / 2 & 8.4 bulk (62.0); 18.8 on the view-decimals window & 17.2--18.1\,GB \\
+ddalcu (:8032) & 202 streamed turns & warm prefills cached & 3.0 (14.2), median 3.3 & 32.7\,GB rss peak; ${\sim}$51--57\,G wired \\
+codernext (:8035) & 205 & \textbf{0 / 102 fetches} & 2.5 final (8.0) & 10.0--10.8\,GB (80\,G never resident) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The night-2 cache fixes hold for every architecture they were built for: on ornith8, glimmer and local30x8 the
+only misses are the first fill of each arm, and the last ornith8 turn of the completion phase read 86{,}212 of
+its 86{,}641 prompt tokens from cache. No HTTP~500 occurred on any server; the 500-template failure of the
+previous serving attempt did not recur. Three further serving facts belong on the record:
+
+\begin{description}
+	\item[A dead port.] The gpt20b provider was registered on :8021, where a root-owned launchd socket accepts
+	every connection and immediately resets it; the server could never bind (address-in-use twice). The provider
+	was re-registered on :8031 and the port should be struck from the cockpit. A port that ``accepts and resets''
+	reads as a server that is up --- the verify-up probe (models endpoint plus a one-token completion) is what
+	caught it, and is now standard before any arm.
+	\item[Mid-session system messages.] The night-2 Qwen3.8 launcher disabled the serving stack's system-message
+	merge because their templates reject a system message after the first. Claude Code appends system-role items
+	mid-session, and with the merge disabled the template raised ``System message must be at the beginning.'' ---
+	32 stream failures in the first 13 minutes of the qwen38 box-press phase. The new launcher keeps the merge
+	(after which a probe with a mid-session system message returns a clean tool call); the OpenAI-protocol path
+	has no merge and still rejects such histories, but the client never uses that path.
+	\item[Harmony without the final channel.] gpt-oss-20b answered every smoke with an empty message
+	(\emph{empty-response}, three times, about 12\,s each). Without its harmony prompt rendering the model freehands
+	tool JSON into plain text with no structured tool calls; \emph{with} harmony installed and verified active, it
+	emits only the analysis channel and stops (finish reason \cmd{stop} at 42 tokens; every delta is reasoning
+	content, none is content or tool call). The MLX build never produces the final-channel choreography the client
+	needs, so the model cannot drive the tool loop on this stack at all --- rejected without a task arm. Raw
+	non-tool prompts answer fine.
+\end{description}
+
+\section{Harness Findings}\label{sec:harness}
+
+\subsection{Dotted tool names, repaired and measured}\label{sec:repair}
+
+The class: a local model writes \cmd{Glob.glob} or \cmd{Read.read} --- namespaced as if tools were modules ---
+the client reports ``no such tool available'', and the model retries the same call, in the worst case sixteen
+times, until a loop guard kills the arm. The repair: a worker-only PreToolUse hook that, when the tool name
+contains a dot and its last segment names a known tool case-insensitively, rewrites the call to the bare name and
+keeps the input, logging each rewrite; anything else passes untouched. Measured live tonight: the repair log
+holds three rewrites (the registration probe \cmd{Glob.glob} $\rightarrow$ \cmd{Glob} at 19:38:54, and two
+rewrites in the very worker that shipped the hook), all 27 dotted-name error rows of the night sit in the two
+glimmer arms spawned before 19:39, and the ten arms spawned after it --- including every ornith8 completion
+and rep2 arm --- produced none. The class is closed at the cost of one hook and one log line per rewrite.
+
+\subsection{The settings-registration gap}\label{sec:gap}
+
+The hook existed for 38 minutes before it fired: committed at 19:01, registered in the live settings at 19:39,
+and hooks are read when a worker spawns. The two box-press arms launched at 19:37 to close glimmer's grid
+therefore ran without it and hit the loop the hook exists for; both count as fails or voids in the tables above.
+The lesson generalises beyond this hook: \emph{a harness fix is not deployed until the next spawn after its
+registration}, so mid-phase fixes must either wait for the phase boundary or be paired with a re-spawn, and any
+``the hook did not help'' claim needs a timestamp check against the repair log before it is believed. The probe
+rewrites (\cmd{worker=probe} in the log) are the cheap proof of liveness; they should be a standard step of hook
+rollout, not an afterthought.
+
+\subsection{Finisher discipline}\label{sec:finisher}
+
+Seven of the night's voids are self-inflicted: six arms were orphaned by phase-worker deadline kills (18:28--18:29
+on ornith8, 19:13 on glimmer) and one by the loop guard. None of the seven measures the model. The discipline
+adopted after the second kill --- completion phases per candidate, paired arms started together, one server
+loaded at a time across the boundary (glimmer stopped 20:02, ornith8 loaded 20:03), voids kept visible in the
+table --- recovered every orphaned cell within two hours, which is why the ranking covers all four tasks at all.
+The budget--arms interplay is the finding: a phase budget sized for the full grid will always spend its last
+minutes killing exactly the arms that a completion phase then has to redo. One interference of the opposite kind
+occurred in the morning rounds: both box-press arms of local30x8 were killed from outside the round 50\,s in by
+another session's pane activity, with 13 minutes of cap left and no watchdog or deadline involvement; the pair
+was re-run clean and completed, the killed attempt's rows stay in the log as history, and the authoritative rows
+are the re-run.
+
+\section{Related Work}\label{sec:related}
+
+The series' tasks grade agents on real repository fixes with hidden tests, which follows the SWE-bench format
+\citep{Jimenez-2024aa}; the harness levers measured tonight (tool-name repair, path denial, loop guard) are
+agent-computer-interface interventions in the sense of \citet{Yang-2024aa}, and the precise and plan prompts are
+external localisation, the constraint that \citet{Xia-2024aa} identify as binding. The PAI worker layer is the
+open-harness counterpart of \citet{Wang-2024ab}. Everything serving-side rests on paged attention and prefix
+reuse \citep{Kwon-2023aa}; the radix-tree reuse that SGLang formalises \citep{Zheng-2024aa} is exactly the
+mechanism that the night-2 cache defeats broke silently and that codernext shows missing \emph{by architecture}:
+a hybrid linear-attention model on which the prefix cache never fires at all.
+
+On quantisation, tonight's A/B is the agentic counterpart of the accuracy--performance trade-off studies: 8~bit
+behaves like the near-lossless regime of \citet{Kurtic-2024aa} --- failures concentrate instead of spreading ---
+while the low-bit degradation literature \citep{Li-2025aa} locates failures early in reasoning chains, which
+matches the 4-bit arm's per-task instability; that quantised models are not uniformly weaker \citep{Fang-2025aa}
+is why the arms are paired, and the replication of the lift on a second family is the paired answer. On-device
+evaluations that co-report capability with system figures \citep{Song-2025aa} are the single-turn analogue of
+Section~\ref{sec:ssd}; the tool-calling angle separates this setting from function-calling benchmarks
+\citep{Patil-2024aa,Chen-2024aa} --- a dotted or namespaced tool name costs minutes of thrash inside a
+build-test-fix loop, not one point, and the trajectory-level failures (read-only paralysis, protocol confusion)
+are invisible to single-turn scoring. Reporting minutes and turns next to pass rates follows the cost-accounting
+discipline of \citet{Kapoor-2024aa}; on this night the cost axis is gigabytes and seconds, and it changes the
+ranking's conclusion (rank 2 wins the recommendation on cost).
+
+The failure taxonomy maps onto the multi-agent failure analyses: MAST's verification and specification
+categories \citep{Cemri-2025aa} cover glimmer's read-only paralysis and protocol confusion at the single-worker
+level; the no-op-edit loops of night~2 and tonight's sixteen-fold retry are the ``cognitive deadlocks'' of
+\citet{Liu-2025aa}; infinite-loop analyses find such loops in the agent--harness feedback path rather than the
+model alone \citep{Hou-2026aa}, which is where the loop guard and the repair hook operate; and the attribution
+dispute --- users propose guardrails, developers blame the model --- is exactly the split of
+Section~\ref{sec:taxonomy} into harness-repairable and model-side classes \citep{Chen-2026aa}. What the published
+work on quantisation and tool use does not contain is the setting itself: quantised candidates graded by builds
+and hidden tests, paired arms on one GPU beside normal work, with the serving defects reported as first-class
+results.
+
+\section{Discussion}\label{sec:discussion}
+
+\textbf{A resident coder exists now, with two caveats.} Ornith-1.5-35B-A3B at 8~bit passes three of the four task
+classes on both prompt styles, replicates the view-decimals plan pass, and is the first local model through
+box-press on both arms. Caveat one is memory: 35.5 of 36\,GB resident leaves no room for a second model server,
+ever, on this machine --- the resident model is a commitment. Caveat two is wall time: 22.8\,s per turn is twice
+the operator's patience for a one-line fix, which the 12--15\,min log-size passes make concrete.
+
+\textbf{Half the memory passes the same tasks.} The second family's quant lift is the practically important half
+of the quantisation finding: local30x8 matches ornith8's 5-of-6 cells at 17--18\,GB resident and finishes its
+passes in 5--6.5 minutes against 12--25. Ornith8 keeps rank~1 only because its passes are build-verified while
+the challenger's are inspected checks; the two candidates should be settled by building both at the next
+daylight pass. If the checks hold, the resident-coder deal of the night is the smaller model, and the 35B arm's
+crown was an artefact of grading strength rather than of capability.
+
+\textbf{Memory beyond the machine is a wall-clock problem.} The SSD experiments answer a question the resident
+debate usually blurs: a 125B model that does not fit can still be the second-best coder of the night on quality
+per task attempted --- with three load fixes, 80\,G of weights served productively from SSD, swap flat --- but
+every decode token pays random expert-row page-ins, and at 3\,tok/s every 30-minute cap fills with reading. The
+80B variant shows the same tax with the weights never resident at all. The conclusion is not ``bigger is
+possible'' but ``bigger needs RAM'': the SSD-paged model is the likely new rank~1 on a host where it fits
+(128\,G-class, or a smaller pack), and on this host it is a research instrument, not a worker.
+
+\textbf{The cloud keeps the multi-file class.} save-model-ref (3 files, +64 lines) has now been attempted by
+every local candidate and passed by none: 0 of 12 graded local arms on night~2, 0 of 2 tonight, with the rep2
+attempt voided by the wedge --- 14 graded tries in total (Wilson 0--22\,\%). Sonnet~5.5 passes it in 7.0 minutes.
+The division of labour stands: local resident for one- and two-function fixes on both prompt styles, cloud for
+reference-preserving multi-file work.
+
+\textbf{Instruction-following is the gate, not the weights.} Glimmer had the best streams of the night and the
+worst table; the dense-30B architecture is thereby acquitted on speed, and the next candidate queue should be
+ordered by agentic instruction-following evidence, not by tokens per second or density. The three glimmer failure
+modes are also a warning about evaluation: a single-turn codegen score would have ranked it first.
+
+\textbf{Replication rule earns its keep twice.} The view-decimals split replicated exactly (precise fail, plan
+pass, both repetitions), which is what makes the plan-prompt pattern six-for-six locally --- until ornith6's
+double view-decimals failure breaks it at 6~bit, a reminder that the pattern too is quant-dependent; and the
+wedge aborted the rest of rep~2 without touching the ranking, because the rule forbids single-run verdicts in
+either direction.
+
+\section{Recommendation}\label{sec:recommendation}
+
+Load Ornith-1.5-35B-A3B 8-bit as the resident coder for now: one server, fold-text launcher, thinking off,
+output cap 8192, prefix cache on, 36\,GB watch line, path and tool-name hooks registered before the first spawn.
+Give it the plan prompt on view-decimals-class tasks and either prompt on one-function fixes; keep box-press on
+it with the precise prompt first. In parallel, build-verify the local30x8 passes at the next daylight slot; if
+they hold --- the inspected diffs say they will --- switch the resident role to Qwen3-Coder-30B-A3B 8-bit: the
+same passes at 17--18\,GB, arms two to four times faster, and headroom left on the machine, which ornith8 at
+35.5\,GB never offers.
+
+Keep the save-model-ref class and any multi-file, reference-preserving change on the cloud coder (Sonnet~5.5);
+no local model has crossed it in 14 graded tries, and the class now carries a second strike: it is also the
+wedge trigger. Keep qwen38 as the light fallback (${\sim}$20\,GB) with its record now complete (3 of 8) and its
+dense decode visibly slower than the MoE arms under two parallel agents; do not adopt glimmer or gpt-oss-20b on
+this stack. Do not serve models larger than memory as workers until the prefix-cache and paging questions are
+solved --- treat ddalcu's 3 of 6 as the upper bound of what SSD paging gives for free. For the next run:
+replicate log-size and box-press on ornith8, add the Metal-peak watch line, and settle the ornith8/local30x8
+question by building both.
+
+\section{Limitations}\label{sec:limits}
+
+The ranking stands on rep-1 evidence with one replicated cell; 5 of 8 and 7 of 17 are small fractions of small
+denominators, and the Wilson intervals overlap for the middle ranks. Ranks 2--4 rest on buildless diff grading:
+their passes are inspected checks containing the true fixes, not green test suites, and one of them (codernext
+log-size) self-reported failure because it could not build --- the fraction is a lower bound on capability and an
+upper bound on verified quality. The 4-bit arm's 17 graded arms were collected under night-2's serving, so the
+A/B compares bit widths across nights --- launcher and cache fixes are common to both, but not every serving
+detail is identical; the night-1 4-bit local30 comparison crosses harness versions as well. The deadline
+structure differed across the queue (12--30\,min caps), so per-task fractions are comparable within a candidate
+and only roughly across candidates. Glimmer's voids reduce its graded record to five arms, all fails, which is
+enough to reject it as the resident but not to characterise it; two ornith6 one-turn arms were not inspected and
+their class assignment is provisional. The wedge was measured twice in effect but instrumented once; its trigger
+conditions (long context, continuous batching, 35--45 minutes) are an observation, not an isolated cause. The
+tool-error log for the night also contains 175 rows from an out-of-round infrastructure session; they are
+excluded from every count here. Grading is mechanical, prompts and plans were written by cloud models, and a
+cloud model is also the yardstick. All samples come from one subsystem of one code base on one machine.
+
+\clearpage
+\markboth{\MakeUppercase{\slshape References}}{}
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\printbibliography[title={References}]
+
+\end{document}
