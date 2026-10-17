@@ -124,10 +124,13 @@ the prefix cache (0 hits in 102 fetches). The save-model-ref class remains uncro
 tries), and its replication attempt wedged the serving process twice (Metal 46.2\,GB active against a 34.6\,GB
 limit, resident collapsed to 0.1\,GB). A morning head-to-head then settled the disputed rank-1 seat on the
 log-size tiebreak: the 30B-A3B 8-bit passes 4 of 4 gradeable log-size arms against the 35B's 3 of 4, at
-3.8--4.4$\times$ the wall speed and roughly 31\,GB resident, and takes rank 1 --- a diff-verified rank 1, not a
-build-verified one: the 35B keeps the night's only build-verified passes, and a daylight build pass may still
-flip the seat. The recommendation: the 30B-A3B 8-bit as resident coder, the 35B 8-bit as build-verified
-fallback, multi-file saves on the cloud coder.
+3.8--4.4$\times$ the wall speed and roughly 31\,GB resident, and takes rank 1 --- and a daylight build pass over
+the same arms (the diffs re-graded, nothing re-run) makes the seat build-verified: all six deciding cells
+(log-size 4 of 4, box-press precise 2 of 2, both repetitions) build clean and pass the hidden tests. The
+morning's one non-replication cuts the other way: the SSD-paged 125B's box-press precise pass was cap-edge
+variance, not capability (rep 2 capped out at 37 turns, 0 files; 1 of 4 over graded box-press arms). The
+recommendation: the 30B-A3B 8-bit as resident coder, the 35B 8-bit as build-verified fallback, multi-file saves
+on the cloud coder.
 
 \end{minipage}
 \end{center}
@@ -194,8 +197,9 @@ per finding:
 After the first two candidates and the serving fault of Section~\ref{sec:wedge}, the night turned into a
 self-directed queue that ran to the 08:15 close and served four more candidates, two of them experiments in
 where a model is allowed to live: a 125B MoE deliberately larger than free memory, paged from SSD, and an 80B
-8-bit model that the operating system keeps out of residence entirely --- and closed with a log-size
-head-to-head that settled the rank-1 seat (Section~\ref{sec:h2h}). Section~\ref{sec:changes} describes what changed since
+8-bit model that the operating system keeps out of residence entirely --- closed with a log-size
+head-to-head that settled the rank-1 seat (Section~\ref{sec:h2h}), and the morning after it, a daylight build
+pass verified the seat on the same arms (Section~\ref{sec:daylight}). Section~\ref{sec:changes} describes what changed since
 night~2, Section~\ref{sec:setting} the setting, Section~\ref{sec:method} the method, Section~\ref{sec:results}
 the results, Section~\ref{sec:harness} the harness findings, and Section~\ref{sec:related} the relation to
 published work.
@@ -297,16 +301,20 @@ banned the heavy build as a watch-line risk), and arms were graded by diff compa
 \emph{check} when the arm touched the fix's own file and function, \emph{likely-fail} otherwise. Checks were then
 inspected by hand; every pass quoted for local30x8, ddalcu and codernext is an inspected diff that contains the
 true fix (for log-size, the exact one-line root cause), and Section~\ref{sec:limits} carries the cost of this
-substitution. Build verdicts and inspected checks are never mixed inside one fraction without a note.
+substitution. Build verdicts and inspected checks are never mixed inside one fraction without a note. After the
+close, a daylight build pass re-graded the deciding arms through the builder --- the same diffs, no re-run
+(Section~\ref{sec:daylight}).
 
 \subsection{Replication rule}
 
 Night~2's rule ``no single-run verdicts'' is enforced as a replication pass: every cell of the shortlisted
 candidate is run a second time (rep~2) before the ranking is called final. Tonight the replication pass is
 incomplete by a serving fault, not by choice: view-decimals replicated (the split repeated exactly), the
-save-model-ref pair wedged the server twice (Section~\ref{sec:wedge}) and was abandoned, and log-size and
-box-press were not re-run --- both had passed 2 of 2 in rep~1. The ranking therefore stands on rep-1 evidence
-with one replicated task, and the sample sizes are stated wherever a fraction is quoted.
+save-model-ref pair wedged the server twice (Section~\ref{sec:wedge}) and was abandoned, and the queue only
+re-ran cells where the ranking needed them --- the head-to-head's log-size rep 2, local30x8's box-press and
+view-decimals reps, glm47's log-size rep, and ddalcu's box-press rep 2, which did not replicate
+(Sections~\ref{sec:h2h}, \ref{sec:daylight}, \ref{sec:ssd}). The ranking therefore stands on rep-1 evidence
+with the replicated cells marked, and the sample sizes are stated wherever a fraction is quoted.
 
 \subsection{Voids}
 
@@ -321,21 +329,23 @@ Tonight's voids have three causes: phase-budget kills (six arms), a loop-guard k
 \begin{table}[htbp]
 \centering
 \small
-\caption{Final night-3 ranking (post head-to-head, the 08:15 verified close; rep-1 evidence plus the log-size
-rep-2 arms of Section~\ref{sec:h2h}). ``Result'' is graded arms on the three-task set
+\caption{Final night-3 ranking (post head-to-head, the 08:15 verified close; rep-1 evidence plus the rep-2 arms
+of Sections~\ref{sec:h2h} and~\ref{sec:ssd}). ``Result'' is graded arms on the three-task set
 view-decimals/log-size/box-press; ornith8 additionally holds save-model-ref 0 of 2. Rows marked \emph{build}
-are build-verified verdicts (Section~\ref{sec:grading}); \emph{check} rows are inspected diff-level passes ---
-rank~1's seat is diff-verified, not build-verified. Cloud yardsticks from night~2 for orientation: Sonnet~5.5
-passed 4 of 4 (median 5.6\,min), GLM-5.3 and GLM-5.3-flash 3 of 4 each, Haiku~4.5 2 of 4.}\label{tab:ranking}
+are build-verified verdicts (Section~\ref{sec:grading}); \emph{check} rows are inspected diff-level passes.
+Rank~1's six deciding cells (log-size 4/4, box-press precise 2/2, both reps) are build-verified by the daylight
+pass of Section~\ref{sec:daylight}; its round-6 view-decimals checks remain diff-level. Cloud yardsticks from
+night~2 for orientation: Sonnet~5.5 passed 4 of 4 (median 5.6\,min), GLM-5.3 and GLM-5.3-flash 3 of 4 each,
+Haiku~4.5 2 of 4.}\label{tab:ranking}
 \resizebox{\textwidth}{!}{\begin{tabular}{clllll}
 \toprule
 Rank & Candidate & Result & Resident & Decode & Note \\
 \midrule
-1 & Qwen3-Coder-30B-A3B 8-bit (local30x8) & \textbf{5/6} (view 2/2, log 2/2, box 1/2); log 4/4 across both reps & 17--18\,GB round 6; 30.9--32.4\,GB h2h window & 8.4 bulk, 62 max single; 13.8 avg h2h & \emph{check}, inspected; takes rank 1 on the h2h (Section~\ref{sec:h2h}) \\
-2 & Ornith-1.5-35B-A3B 8-bit (ornith8) & \textbf{5/6} (box 2/2, log 2/2, view 1/2) + save-model-ref 0/2; log 3/4 with rep 2 & 35.5/36\,GB & 9.8--10.3 bulk, 22.8\,s/turn; 8.8 avg h2h & \emph{build}; rep-1 passes build-verified; first log-size precise FAIL in rep 2 \\
-3 & Qwen3.8-Flash-Next 3.3\,bpw (ddalcu) & 3/6 (log 2/2, box 1/2 precise, view 0/2) & ${\sim}$52\,G of 128\,G wired & 3.0 bulk & \emph{check}; SSD-paged, Section~\ref{sec:ssd} \\
+1 & Qwen3-Coder-30B-A3B 8-bit (local30x8) & \textbf{5/6} (view 2/2, log 2/2, box 1/2); log 4/4 and box-press precise 2/2 across both reps --- all six \emph{build}-verified & 17--18\,GB round 6; 30.9--32.4\,GB h2h window & 8.4 bulk, 62 max single; 13.8 avg h2h & \emph{build} on the deciding cells (daylight pass, Section~\ref{sec:daylight}); takes rank 1 on the h2h \\
+2 & Ornith-1.5-35B-A3B 8-bit (ornith8) & \textbf{5/6} (box 2/2, log 2/2, view 1/2) + save-model-ref 0/2; log 3/4 with rep 2 & 35.5/36\,GB & 9.8--10.3 bulk, 22.8\,s/turn; 8.8 avg h2h & \emph{build}; rep-1 passes and the rep-2 plan arm build-verified (log-size 3/4); the rep-2 precise arm made no edits; keeps the only clean box-press sweep \\
+3 & Qwen3.8-Flash-Next 3.3\,bpw (ddalcu) & 3/6 (log 2/2, box 1/4, view 0/2) & ${\sim}$52\,G of 128\,G wired & 3.0 bulk & \emph{check}; SSD-paged; box-press precise did not replicate in rep 2 (cap-out, 0 files) \\
 4 & Qwen3-Coder-Next 80B 8-bit (codernext) & 2/6 (log 2/2; view, box read-only) & 10.7\,GB rss (80\,G never resident) & 2.5 bulk, 8.0 max & \emph{check}; prefix cache never hits \\
-5 & GLM-4.7-Flash 6-bit (night 2) & 5/7 (log 3/3, box 1/2, view 1/2); save-model-ref unfinished & ${\sim}$24\,GB & -- & night-2 rows carried \\
+5 & GLM-4.7-Flash 6-bit (night 2) & 7/9 (log 5/5, box 1/2, view 1/2); save-model-ref unfinished & ${\sim}$24\,GB & -- & night-2 rows carried; night-3 log-size rep 2/2, both committed checks --- perfect log-size record \\
 6 & Ornith-1.5-35B-A3B 6-bit (ornith6) & 3/6 (box 2/2, log 1/2, view 0/2) & -- & -- & \emph{build}; ranks between ornith8 and qwen38 \\
 7 & Qwen3.8-27B 6-bit (qwen38) & 3/8 (log 2/2, view 1/2, save-model-ref 0/2, box 0/2) & ${\sim}$20\,GB & -- & box-press debt run tonight \\
 8 & Ornith-1.5-35B-A3B 4-bit (night 2) & 7/17 (log 4/4, view 2/5, box 1/4, save-model-ref 0/4) & 26\,G disk & -- & superseded by its 8-bit \\
@@ -355,9 +365,10 @@ passes the same five of six cells at 17--18\,GB (half the resident size) with ar
 ornith8's 12--25, and its one round-6 failure (box-press plan) is the same cell its own night-1 4-bit build
 failed. The tiebreak broke the tie on both axes --- 4 of 4 gradeable log-size arms against 3 of 4, at
 3.8--4.4$\times$ the wall speed --- with the tightest diff of the night's log-size arms (sim 0.80, ratio 0.67,
-smaller than the landed fix). What keeps the seat provisional is grading mode: rank~1 is diff-verified, not
-build-verified, and ornith8's rep-1 passes remain the night's only build-verified ones, so a daylight build pass
-may still flip the seat back. Ornith8's rep 2 also added its first log-size precise FAIL, on a task it had
+smaller than the landed fix). The one condition the seat carried --- grading mode: rank~1 was diff-verified
+while ornith8's rep-1 passes were build-verified --- was removed by the daylight build pass of
+Section~\ref{sec:daylight}, which verified all six deciding local30x8 cells through the builder. Ornith8's rep 2
+also added its first log-size precise FAIL, on a task it had
 passed twice in rep~1 --- variance at 8.8\,tok/s is real. Ranks 3 and 4
 are the memory experiments of Section~\ref{sec:ssd}. Qwen3.8 stays the light fallback at roughly 20\,GB; its owed
 box-press run happened tonight and failed both arms with real effort (23 and 34 turns, no files touched), so its
@@ -391,6 +402,11 @@ local30x8 precise & \textbf{likely-pass} --- committed \cmd{bd3ee3c0}, 2-line fi
 local30x8 plan & \textbf{pass} (check) --- \cmd{attributesOfItem} at the fix's exact line plus an extended test, uncommitted & \textbf{2m30s} \\
 \bottomrule
 \end{tabular}
+
+\smallskip\footnotesize
+Daylight build pass on these same diffs (Section~\ref{sec:daylight}): both local30x8 arms and the ornith8 plan
+arm build and pass the hidden tests; the ornith8 precise arm is an empty patch --- the arm capped out without
+editing a file.
 \end{table}
 
 Local30x8 wins on both axes: pass count, 2 of 2 against 1 of 2 in rep~2 (4 of 4 gradeable log-size arms across
@@ -400,10 +416,31 @@ verdict: streams averaged 8.8\,tok/s on ornith8 ($n{=}22$) against 13.8 on local
 both processes sat at 30.9--32.4\,GB resident --- the 30B's residency is memory-pressure-dependent (17--18\,GB
 in round 6), so the ${\sim}$31\,GB of the tiebreak window, not the round-6 figure, is the planning number. The
 verdict, verified against the grade rows at 08:15: rank~1 moves to Qwen3-Coder-30B-A3B 8-bit; ornith8 drops to
-rank~2, kept close by its build-verified rep-1 passes, and takes the seat back if the daylight build fails
-local30x8's committed diff. The tiebreak cost two skips on the record: colibri and the 480B were never
+rank~2, kept close by its build-verified rep-1 passes --- and the daylight build pass of
+Section~\ref{sec:daylight} then removed the seat's one condition. The tiebreak cost two skips on the record:
+colibri and the 480B were never
 measured, only rejected with reasons. Servers were stopped and ports verified clear at close; the fitness run
 is closed.
+
+\subsection{The daylight build pass}\label{sec:daylight}
+
+The head-to-head left the rank-1 seat carrying one condition: local30x8's passes were diff-level checks while
+ornith8's rep-1 passes were build-verified. The operator lifted the no-build rule for one pass on the morning of
+the 17th (11:01--11:09) and settled it on the \emph{same arms} --- nothing was re-run; each arm's committed or
+uncommitted diff was applied to the warm parent repo and graded through the hidden tests on the build slots,
+seven arms sequentially plus the one box-press cell already build-graded earlier in the morning. All six of
+local30x8's deciding arms pass with build and test exit 0 --- log-size precise and plan in both repetitions,
+box-press precise in both repetitions, ``\cmd{TEST SUCCEEDED}'' in every grade log --- so log-size 4 of 4 and
+box-press precise 2 of 2 are build-verified, with grade walls of 42\,s to 2m45s on warm slots. Ornith8's rep-2
+pair graded alongside them splits along its diff verdicts: the plan arm (the fix's exact root cause, committed)
+builds and passes --- log-size 3 of 4 build-verified with rep 1 --- and the precise arm fails to apply for the
+cleanest reason on record: it made no edits, an empty diff after capping out read-only. No clone failed to
+build, and the view-decimals failure mode of the night's buildless checks (nine repo tests failing inside arm
+clones) appears on none of the eight graded diffs. The decision rule --- local30x8 holds rank 1 iff log-size
+4 of 4 and box-press precise 2 of 2 survive builds --- is therefore met, 6 of 6: the seat is build-verified at
+roughly half the footprint (17--32\,GB against 35.5) and 2.5--7-minute walls against ornith8's 11--15 on the
+same arms. Ornith8 keeps rank 2, its remaining edge the only clean box-press sweep of the night (2 of 2 against
+local30x8's precise-only 2 of 2, with plan 0 of 2 structural).
 
 \subsection{The quantisation A/B}\label{sec:quant}
 
@@ -451,7 +488,8 @@ honest: view-decimals plan sprawled over a 22-file uncommitted diff at the cap, 
 nothing. One lift is a finding about one model; two lifts on two families, on the same paired protocol, is a
 finding about quantisation --- and the second family delivers the passes at half the memory and two to four
 times the arm speed, which the morning head-to-head then confirmed on the rank-1 seat
-(Section~\ref{sec:h2h}).
+(Section~\ref{sec:h2h}) and the daylight build pass confirmed at the level of the builder
+(Section~\ref{sec:daylight}).
 
 \subsection{Per-task splits}\label{sec:splits}
 
@@ -508,7 +546,11 @@ ornith6 (20/15/25, \emph{build}) & fail 0.2 / fail 13.4, 79 turns & fail 0.4, 1 
 Ornith6's view-decimals and log-size precise arms are degenerate one-turn runs (0.2 and 0.4 minutes; the
 log-size arm emitted 189 tokens and stopped) --- the night-2 ``empty first turn'' class resurfacing at 6~bit.
 The codernext log-size arms produced the true fix but the worker judged itself failed because it could not run
-the build; the diff was graded instead.
+the build; the diff was graded instead. Morning addenda: local30x8's deciding cells (log-size $\times$4,
+box-press precise $\times$2, both reps) were later build-verified (Section~\ref{sec:daylight}); ddalcu's
+box-press rep 2 did not replicate (precise 37 cap-out turns, plan 33, 0 files both --- box-press 1/4 over
+graded arms, Section~\ref{sec:ssd}); glm47's night-3 log-size rep added two committed checks, 5/5 with
+night~2.
 \end{table}
 
 \subsection{Glimmer: fast, useless}\label{sec:glimmer}
@@ -517,7 +559,7 @@ the build; the diff was graded instead.
 \centering
 \small
 \caption{Muse-Glimmer-30B 4-bit by task (dense 30B; all arms on its own server, :8016).}\label{tab:glimmer}
-\begin{tabular}{lll}
+\begin{tabular}{P{2.6cm}P{5.7cm}P{5.7cm}}
 \toprule
 Task & Precise & Plan \\
 \midrule
@@ -557,6 +599,18 @@ formula (monkeypatched to the plain form; the arithmetic sanity check ``$17\time
 After that: smoke pass through the full tool loop in 68\,s, zero template errors, 3 of 6 graded arms with
 log-size on both prompts and the box-press precise fix's core --- the second-best quality-per-task-attempted of
 the night.
+
+\textbf{Rep 2 corrected the surprise.} The box-press precise pass did not replicate. A patient re-run at the
+same 30-minute caps (the morning's round 9; an earlier 20-minute attempt had been killed by its own goal cap
+and is history, not a verdict) put the precise arm under the cap for the full 30 minutes --- 37 turns, 0 files
+touched, 0 commits, every diff metric 0.00 --- where rep 1 had landed the fix's core in 32 turns; the plan arm
+failed on both reps (33 turns, 0 files this time). Box-press reads 1 of 4 over graded arms. What does
+replicate is the arithmetic of Section~\ref{sec:grading}'s caps: at 2.4\,tok/s average decode this run (max
+10.4; rep 1 averaged 3.0), a 30-minute window is only about 60 turns, so the edit has to land near the first
+try --- \emph{cap-out risk, not capability}, decides ddalcu's box-press arms, exactly as it decided
+view-decimals (0 of 4). The rep-1 precise pass was variance at the edge of the cap, not a stable capability.
+The run itself was clean: one server, 57 requests, rss peak 37.1\,GB (rep 1: 32.7), swap flat at 16.9\,GB,
+watchdog zero kills. No rank change: ddalcu stays third on log-size 2 of 2 and the inspected rep-1 checks.
 
 The cost is the finding. Over 202 streamed turns, decode averaged 3.0\,tok/s (median 3.3, min 0.7, max 14.2);
 the machine survived with swap growing 25\,MB in total against a kill line of 500\,MB per five minutes, and the
@@ -633,7 +687,8 @@ class, wedge risk).
 \small
 \caption{Server-side figures per phase (prefix-cache hit/miss from the server log; stream average and maximum
 decode tokens/s).}\label{tab:serving3}
-\begin{tabular}{llccl}
+\footnotesize
+\begin{tabular}{P{3.0cm}P{1.7cm}P{2.1cm}P{3.4cm}P{3.2cm}}
 \toprule
 Phase (server) & Requests & Cache hit/miss & tok/s avg (max) & Resident \\
 \midrule
@@ -761,10 +816,10 @@ for a one-line fix, which the 12--15\,min log-size passes make concrete.
 \textbf{Half the memory passes the same tasks --- and now holds rank 1.} The second family's quant lift is the
 practically important half of the quantisation finding: local30x8 matches ornith8's 5-of-6 cells at 17--18\,GB
 resident and finishes its passes in 5--6.5 minutes against 12--25, and the log-size head-to-head then broke the
-tie on both axes (4 of 4 gradeable against 3 of 4, at 3.8--4.4$\times$ the walls). The seat stays provisional in
-one respect: rank~1 is diff-verified, not build-verified. If the daylight build passes, the resident-coder deal
-of the night is the smaller model, and the 35B arm's crown was an artefact of grading strength rather than of
-capability; if it fails, ornith8's build-verified record takes the seat back.
+tie on both axes (4 of 4 gradeable against 3 of 4, at 3.8--4.4$\times$ the walls). The seat's one provisional
+respect --- grading mode --- is settled: the daylight build pass verified all six deciding cells through the
+builder, so the resident-coder deal of the night is the smaller model, and the 35B arm's crown was an artefact
+of grading strength rather than of capability.
 
 \textbf{Memory beyond the machine is a wall-clock problem.} The SSD experiments answer a question the resident
 debate usually blurs: a 125B model that does not fit can still be the second-best coder of the night on quality
@@ -785,11 +840,13 @@ worst table; the dense-30B architecture is thereby acquitted on speed, and the n
 ordered by agentic instruction-following evidence, not by tokens per second or density. The three glimmer failure
 modes are also a warning about evaluation: a single-turn codegen score would have ranked it first.
 
-\textbf{Replication rule earns its keep twice.} The view-decimals split replicated exactly (precise fail, plan
+\textbf{Replication rule earns its keep three times.} The view-decimals split replicated exactly (precise fail, plan
 pass, both repetitions), which is what makes the plan-prompt pattern six-for-six locally --- until ornith6's
-double view-decimals failure breaks it at 6~bit, a reminder that the pattern too is quant-dependent; and the
+double view-decimals failure breaks it at 6~bit, a reminder that the pattern too is quant-dependent; the
 wedge aborted the rest of rep~2 without touching the ranking, because the rule forbids single-run verdicts in
-either direction.
+either direction; and the morning's round 9 caught a pass on its way to becoming a claim --- ddalcu's
+box-press precise win dissolved on re-run (37 cap-out turns, 0 files), a cap-edge variance the rule refuses
+to promote.
 
 \section{Recommendation}\label{sec:recommendation}
 
@@ -799,12 +856,13 @@ registered before the first spawn. Its evidence: 5 of 6 on the three-task set, l
 repetitions, and the head-to-head won on both axes at 3.8--4.4$\times$ ornith8's walls, at 17--18\,GB resident
 in round 6 and 30.9--32.4\,GB in the round-7 window --- plan for the higher figure. Give it either prompt on
 one-function fixes and the precise prompt first on view-decimals and box-press, with the plan-arm sprawl noted.
-The seat carries one condition: rank~1 is diff-verified, not build-verified, so build-verify the committed
-log-size pass (\cmd{bd3ee3c0}-equivalent on the real fix) at the next daylight slot before calling the deal
-final.
+The seat's one condition is settled: the daylight build pass verified all six deciding cells (log-size 4 of 4,
+box-press precise 2 of 2, both repetitions) with build and test exit 0 --- the deal is final, and the evidence
+now matches the 35B's.
 
-Ornith-1.5-35B-A3B 8-bit drops to the fallback seat and keeps a real edge: its rep-1 passes are the night's only
-build-verified ones. If the daylight build fails local30x8's committed diff, the resident role reverts to
+Ornith-1.5-35B-A3B 8-bit drops to the fallback seat and keeps a real edge: its rep-1 passes and the rep-2 plan
+arm are build-verified (log-size 3 of 4), and it holds the night's only clean box-press sweep (2 of 2 against
+local30x8's precise-only 2 of 2). If a rep flips a local30x8 cell, the resident role reverts to
 ornith8 (one server, fold-text launcher, thinking off, output cap 8192, prefix cache on, 36\,GB watch line):
 plan prompt on view-decimals-class tasks, either prompt on one-function fixes, box-press with the precise
 prompt first.
@@ -814,17 +872,21 @@ no local model has crossed it in 14 graded tries, and the class now carries a se
 wedge trigger. Keep qwen38 as the light fallback (${\sim}$20\,GB) with its record now complete (3 of 8) and its
 dense decode visibly slower than the MoE arms under two parallel agents; do not adopt glimmer or gpt-oss-20b on
 this stack. Do not serve models larger than memory as workers until the prefix-cache and paging questions are
-solved --- treat ddalcu's 3 of 6 as the upper bound of what SSD paging gives for free. For the next run: the
-daylight build-verification of local30x8's committed pass first; ornith8's rep-2 completion on the remaining
-three tasks is optional; add the Metal-peak watch line.
+solved --- treat ddalcu's 3 of 6 as the upper bound of what SSD paging gives for free, and its box-press
+non-replication as the caution that its rep-1 pass was cap-edge variance. For the next run: ornith8's rep-2
+completion on the remaining three tasks is optional; add the Metal-peak watch line.
 
 \section{Limitations}\label{sec:limits}
 
-The ranking stands on rep-1 evidence with one replicated cell plus the head-to-head's log-size rep 2; 5 of 8 and
-7 of 17 are small fractions of small denominators, and the Wilson intervals overlap for the middle ranks. Ranks
-1--4 rest on buildless diff grading: rank~1's passes --- including both head-to-head arms --- are inspected
-checks containing the true fixes, not green test suites, so the seat is diff-verified rather than
-build-verified, and the runner-up keeps the only build-verified passes. One of the diff-graded rows (codernext
+The ranking stands on rep-1 evidence with the replicated cells marked (the head-to-head's log-size rep 2,
+local30x8's box-press and view-decimals reps, glm47's log-size rep, ddalcu's non-replicated box-press rep 2);
+5 of 8 and
+7 of 17 are small fractions of small denominators, and the Wilson intervals overlap for the middle ranks. Most
+arms were graded buildless, and the daylight pass re-graded only rank~1's deciding cells (log-size 4 of 4,
+box-press precise 2 of 2 --- the same diffs, nothing re-run): the seat is build-verified on those six cells,
+but rank~1's round-6 view-decimals passes and every rank-3/4 pass remain inspected diff-level checks
+containing the true fixes, not green test suites --- and the runner-up keeps the richer build-verified record
+(rep 1 plus the rep-2 plan arm; log-size 3 of 4). One of the diff-graded rows (codernext
 log-size) self-reported failure because it could not build --- the fraction is a lower bound on capability and an
 upper bound on verified quality. The two round-7 candidates were rejected before serving (model format; no
 quant fits free RAM) and are therefore unmeasured, not failed. The 4-bit arm's 17 graded arms were collected under night-2's serving, so the
