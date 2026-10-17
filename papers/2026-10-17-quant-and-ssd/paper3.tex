@@ -491,6 +491,39 @@ times the arm speed, which the morning head-to-head then confirmed on the rank-1
 (Section~\ref{sec:h2h}) and the daylight build pass confirmed at the level of the builder
 (Section~\ref{sec:daylight}).
 
+\begin{table}[htbp]
+\centering
+\small
+\caption{The 4\,bit $\rightarrow$ 8\,bit lift across three families on the same paired three-task protocol
+(view-decimals, log-size, box-press; buildless grade-diff grading with every diff inspected). Families 1 and 2
+are the A/B above and the paragraph above; family 3 is the round-11 run of 12:14--12:44.}\label{tab:families}
+\resizebox{\textwidth}{!}{\begin{tabular}{P{3.4cm}P{5.4cm}P{5.4cm}P{1.8cm}}
+\toprule
+Family & 4-bit record & 8-bit record (same protocol) & Lift \\
+\midrule
+1 --- Ornith-1.5-35B-A3B & night 2: 7/17 graded, smoke fail (assertion error) & night 3: 5/6--5/8, then rank 2, build-verified passes & replicates \\
+2 --- Qwen3-Coder-30B-A3B & night 1, LM Studio: 4/6 & rounds 6--8: 5/6, rank 1, half the footprint, log-size 4/4 & replicates \\
+3 --- Qwen3.6-35B-A3B & night 1, LM Studio: 1/16 on the paired-3 set (box 1/7, log 0/7, view 0/2); 1/32 over all tasks; every fail a cap-out & round 11: \textbf{5/6} on the same three tasks, zero cap-outs, passing arms 1.5--7.7\,min & replicates \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{The lift replicates on a third family --- and changes the failure mode, not just the rate.} The third
+test is Qwen3.6-35B-A3B, night~1's worst local coder at 4~bit: 1 of 16 graded arms on the paired three-task set
+(box-press 1/7, log-size 0/7, view-decimals 0/2), 1 of 32 over all tasks, and every failure a cap-out --- 33
+arms, 31 fails, not one graded file landed inside any cap (view 20 / log 15 / box 25\,min). At mlx-community
+8~bit (round 11, 12:14--12:44) the identical task set and caps go to 5 of 6: all six arms completed and
+self-ended early with zero cap-outs, the five passes are fix-file, fix-function diffs landed in 1.5--7.7\,min
+(box-press precise names the fix's core one-liner, \cmd{isPickable} must exclude 3D), and the smoke test went
+fail $\rightarrow$ pass in 14\,s, as it did for ornith --- at 31.9--32.2\,GB resident, 21\,tok/s aggregate
+decode, and an 87\,\% prefix-cache reuse, so night~1's all-miss trap did not recur. The one loss keeps the
+family pattern honest: box-press plan, the hardest arm (0 of 2 for local30x8 too), is a wrong-file-family miss
+at zero files --- structurally the night-1 failure shape, surviving only on the plan side. Three protocol
+deltas against night~1 are flagged for exactly this reason: thinking was off at 8~bit (the qwen38 recipe)
+where night~1's 4~bit ran the template default, so on the margin part of the lift may be protocol rather than
+quantisation; grading is diff-level under the standing no-build rule, the same standard as the local30x8
+numbers it is compared against; and the 8-bit evidence is rep~1 only.
+
 \subsection{Per-task splits}\label{sec:splits}
 
 \begin{table}[htbp]
